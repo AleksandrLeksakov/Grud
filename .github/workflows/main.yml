@@ -2,25 +2,27 @@ name: CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
-
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
-      - name: Build
-        run: |
-          chmod +x ./gradlew
-          ./gradlew build --info
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
 
-      - name: Upload Build Artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: app-debug.apk  
-          path: app/build/outputs/apk/debug/app-debug.apk
+    - name: Build with Gradle
+      run: ./gradlew assembleDebug
+
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v4 # <-- новая версия
+      with:
+        name: my-build-artifact
+        path: app/build/outputs/apk/debug/app-debug.apk
